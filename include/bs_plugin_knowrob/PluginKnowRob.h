@@ -1,0 +1,46 @@
+#ifndef __PLUGIN_KNOWROB_H__
+#define __PLUGIN_KNOWROB_H__
+
+
+// System
+#include <cstdlib>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+// json_prolog
+#include <json_prolog/prolog.h>
+
+// Private
+#include <Types.h>
+#include <ForwardDeclarations.h>
+#include <Plugin.h>
+
+using namespace std;
+using namespace json_prolog;
+
+
+namespace beliefstate {
+  namespace plugins {
+    class PluginKnowRob : public Plugin {
+    private:
+    public:
+      PluginKnowRob();
+      ~PluginKnowRob();
+      Prolog* m_prlgProlog;
+      
+      virtual Result init(int argc, char** argv);
+      virtual Result deinit();
+      
+      virtual Result cycle();
+      
+      virtual void consumeEvent(Event evEvent);
+    };
+  }
+  
+  extern "C" plugins::PluginKnowRob* createInstance();
+  extern "C" void destroyInstance(plugins::PluginKnowRob* icDestroy);
+}
+
+
+#endif /* __PLUGIN_KNOWROB_H__ */

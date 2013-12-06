@@ -1,0 +1,17 @@
+<package>
+  <description brief="bs_plugin_knowrob">
+
+     bs_plugin_knowrob
+
+  </description>
+  <author>Jan Winkler</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/bs_plugin_knowrob</url>
+  <depend package="beliefstate"/>
+  <depend package="roscpp"/>
+  <depend package="json_prolog"/>
+
+</package>
+
+
