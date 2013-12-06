@@ -15,6 +15,7 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
+#include <plugins/owlexporter/CExporterOwl.h>
 
 using namespace std;
 using namespace json_prolog;
@@ -24,6 +25,8 @@ namespace beliefstate {
   namespace plugins {
     class PluginKnowRob : public Plugin {
     private:
+      CExporterOwl* m_expOwl;
+      
     public:
       PluginKnowRob();
       ~PluginKnowRob();
