@@ -55,7 +55,7 @@ namespace beliefstate {
 	if(evEvent.lstNodes.size() > 0) {
 	  Node* ndNode = evEvent.lstNodes.front();
 	  
-	  string strOWLClass = m_expOwl->owlClassForNode(ndNode);
+	  string strOWLClass = m_expOwl->owlClassForNode(ndNode, false, true);
 	  string strTaskContextDescription = ndNode->title();
 	  string strTimeStart = ndNode->metaInformation()->stringValue("time-start");
 	  string strPreviousAction = "_";
@@ -67,22 +67,21 @@ namespace beliefstate {
 	  
 	  string strQuery = "cram_start_action(" +
 	    strOWLClass + ", " +
-	    strTaskContextDescription + ", " +
+	    "'" + strTaskContextDescription + "', " +
 	    strTimeStart + ", " +
 	    strPreviousAction + ", _)";
 	  
-	  cout << strQuery << endl;
+	  bool bSuccess;
+	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  
-	  PrologBindings pbBdgs = m_prlgProlog->once(strQuery);
-	  
-	  // TODO(winkler): Interprete the pbBdgs binding for `?actin'
-	  // here. Also, fill the missing information with OWL specific
-	  // data from the symbolic log.
-	  
-	  string strActionInstance = ""; // Get this action instance
-					 // from the prolog query
-					 // result.
-	  ndNode->metaInformation()->setValue("action-instance", strActionInstance);
+	  if(bSuccess) {
+	    // TODO(winkler): Interprete the pbBdgs binding for `?actin'
+	    // here.
+	    string strActionInstance = ""; // Get this action instance
+	    // from the prolog query
+	    // result.
+	    ndNode->metaInformation()->setValue("action-instance", strActionInstance);
+	  }
 	}
       } else if(evEvent.strEventName == "symbolic-end-context") {
 	if(evEvent.lstNodes.size() > 0) {
@@ -95,14 +94,25 @@ namespace beliefstate {
 	    strActionInstance + ", " +
 	    strTimeEnd + ")";
 	  
-	  cout << strQuery << endl;
-	  
-	  PrologBindings pbBdgs = m_prlgProlog->once(strQuery);
-	  
-	  // TODO(winkler): Fill the missing information with OWL
-	  // specific data from the symbolic log.
+	  bool bSuccess;
+	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	}
       }
+    }
+    
+    PrologBindings PluginKnowRob::assertQuery(string strQuery, bool& bSuccess) {
+      PrologBindings pbBdgs;
+      
+      try {
+	pbBdgs = m_prlgProlog->once(strQuery);
+	bSuccess = true;
+      } catch(PrologQueryProxy::QueryError qe) {
+	this->warn("Query error: " + string(qe.what()));
+	this->warn("While querying for: " + strQuery);
+	bSuccess = false;
+      }
+      
+      return pbBdgs;
     }
   }
   

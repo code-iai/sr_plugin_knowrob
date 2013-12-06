@@ -38,6 +38,8 @@ namespace beliefstate {
       virtual Result cycle();
       
       virtual void consumeEvent(Event evEvent);
+      
+      PrologBindings assertQuery(string strQuery, bool& bSuccess);
     };
   }
   
