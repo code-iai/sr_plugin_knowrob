@@ -26,11 +26,11 @@ namespace beliefstate {
     class PluginKnowRob : public Plugin {
     private:
       CExporterOwl* m_expOwl;
+      Prolog* m_prlgProlog;
       
     public:
       PluginKnowRob();
       ~PluginKnowRob();
-      Prolog* m_prlgProlog;
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();

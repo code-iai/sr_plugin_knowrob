@@ -24,8 +24,12 @@ set(CMAKE_CXX_FLAGS "-std=c++0x")
 #rosbuild_gensrv()
 
 #common commands for building c++ executables and libraries
-rosbuild_add_library(bs_plugin_knowrob src/PluginKnowRob.cpp)
-target_link_libraries(bs_plugin_knowrob bs_plugin_owlexporter)
+rosbuild_add_library(bs_plugin_knowrob
+  src/PluginKnowRob.cpp)
+
+target_link_libraries(bs_plugin_knowrob
+  bs_plugin_owlexporter)
+
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 #rosbuild_add_executable(example examples/example.cpp)
