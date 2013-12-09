@@ -111,7 +111,7 @@ namespace beliefstate {
 	  
 	  string strQuery = "cram_set_subaction(" +
 	    string("'") + strActionInstanceParent + string("', ") +
-	    string("'") + strActionInstanceChild + string("', ");
+	    string("'") + strActionInstanceChild + "')";
 	  
 	  bool bSuccess;
 	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
