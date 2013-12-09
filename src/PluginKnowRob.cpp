@@ -69,7 +69,7 @@ namespace beliefstate {
 	    strOWLClass + ", " +
 	    "'" + strTaskContextDescription + "', " +
 	    strTimeStart + ", " +
-	    strPreviousAction + ", _)";
+	    strPreviousAction + ", ACTIONINSTANCE)";
 	  
 	  bool bSuccess;
 	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
@@ -77,7 +77,8 @@ namespace beliefstate {
 	  if(bSuccess) {
 	    // TODO(winkler): Interprete the pbBdgs binding for `?actin'
 	    // here.
-	    string strActionInstance = ""; // Get this action instance
+	    string strActionInstance = pbBdgs["ACTIONINSTANCE"]; // Get this action instance
+	    
 	    // from the prolog query
 	    // result.
 	    ndNode->metaInformation()->setValue("action-instance", strActionInstance);
@@ -91,7 +92,7 @@ namespace beliefstate {
 	  string strTimeEnd = ndNode->metaInformation()->stringValue("time-end");
 	  
 	  string strQuery = "cram_finish_action(" +
-	    strActionInstance + ", " +
+	    string("'") + strActionInstance + string("', ") +
 	    strTimeEnd + ")";
 	  
 	  bool bSuccess;
@@ -106,6 +107,8 @@ namespace beliefstate {
       try {
 	pbBdgs = m_prlgProlog->once(strQuery);
 	bSuccess = true;
+	
+	this->info("Query successful: " + strQuery);
       } catch(PrologQueryProxy::QueryError qe) {
 	this->warn("Query error: " + string(qe.what()));
 	this->warn("While querying for: " + strQuery);
