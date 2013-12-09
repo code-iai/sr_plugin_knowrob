@@ -32,6 +32,8 @@ namespace beliefstate {
 	// Plan node control events
 	this->setSubscribedToEvent("symbolic-begin-context", true);
 	this->setSubscribedToEvent("symbolic-end-context", true);
+	this->setSubscribedToEvent("symbolic-set-subcontext", true);
+	this->setSubscribedToEvent("symbolic-add-image", true);
       } else {
 	resInit.bSuccess = false;
       }
@@ -94,6 +96,35 @@ namespace beliefstate {
 	  string strQuery = "cram_finish_action(" +
 	    string("'") + strActionInstance + string("', ") +
 	    strTimeEnd + ")";
+	  
+	  bool bSuccess;
+	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	}
+      } else if(evEvent.strEventName == "symbolic-set-subcontext") {
+	if(evEvent.lstNodes.size() > 1) {
+	  Node* ndParent = evEvent.lstNodes.front();
+	  evEvent.lstNodes.pop_front();
+	  Node* ndChild = evEvent.lstNodes.front();
+	  
+	  string strActionInstanceParent = ndParent->metaInformation()->stringValue("action-instance");
+	  string strActionInstanceChild = ndChild->metaInformation()->stringValue("action-instance");
+	  
+	  string strQuery = "cram_set_subaction(" +
+	    string("'") + strActionInstanceParent + string("', ") +
+	    string("'") + strActionInstanceChild + string("', ");
+	  
+	  bool bSuccess;
+	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	}
+      } else if(evEvent.strEventName == "symbolic-add-image") {
+	if(evEvent.lstNodes.size() > 0) {
+	  Node* ndNode = evEvent.lstNodes.front();
+	  string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	  string strFilename = evEvent.cdDesignator->stringValue("filename");
+	  
+	  string strQuery = "cram_add_image_to_event(" +
+	    string("'") + strActionInstance + string("', ") +
+	    string("'") + strFilename + string(")");
 	  
 	  bool bSuccess;
 	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
