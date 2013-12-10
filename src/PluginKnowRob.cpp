@@ -34,6 +34,15 @@ namespace beliefstate {
 	this->setSubscribedToEvent("symbolic-end-context", true);
 	this->setSubscribedToEvent("symbolic-set-subcontext", true);
 	this->setSubscribedToEvent("symbolic-add-image", true);
+	this->setSubscribedToEvent("symbolic-equate-designators", true);
+	
+	// TODO(winkler): Implement these events
+	// this->setSubscribedToEvent("symbolic-add-failure", true);
+	// this->setSubscribedToEvent("symbolic-create-designator", true);
+	// this->setSubscribedToEvent("symbolic-add-designator", true);
+	// this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
+	// this->setSubscribedToEvent("symbolic-set-perception-request", true);
+	// this->setSubscribedToEvent("symbolic-set-perception-result", true);
       } else {
 	resInit.bSuccess = false;
       }
@@ -124,10 +133,28 @@ namespace beliefstate {
 	  
 	  string strQuery = "cram_add_image_to_event(" +
 	    string("'") + strActionInstance + string("', ") +
-	    string("'") + strFilename + string(")");
+	    string("'") + strFilename + string("')");
 	  
 	  bool bSuccess;
 	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	}
+      } else if(evEvent.strEventName == "symbolic-equate-designators") {
+	if(evEvent.cdDesignator) {
+	  string strParentID = evEvent.cdDesignator->stringValue("parent-id");
+	  string strChildID = evEvent.cdDesignator->stringValue("child-id");
+	  string strEquationTime = evEvent.cdDesignator->stringValue("equation-time");
+	  
+	  if(strParentID != "" && strChildID != "") {
+	    string strQuery = "cram_equate_designators(" +
+	      string("'") + strParentID + string("', ") +
+	      string("'") + strChildID + string("', ") +
+	      strEquationTime + string(")");
+	    
+	    bool bSuccess;
+	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  } else {
+	    this->warn("Cannot equate designators '" + strParentID + "' and '" + strChildID + "'.");
+	  }
 	}
       }
     }
