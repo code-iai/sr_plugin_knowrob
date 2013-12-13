@@ -41,6 +41,7 @@ namespace beliefstate {
 	
 	// TODO(winkler): Fully implement these events
 	this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
+	this->setSubscribedToEvent("symbolic-set-detected-object", true);
 	this->setSubscribedToEvent("symbolic-set-perception-request", true);
 	this->setSubscribedToEvent("symbolic-set-perception-result", true);
       } else {
@@ -232,6 +233,11 @@ namespace beliefstate {
       } else if(evEvent.strEventName == "symbolic-set-object-acted-on") {
 	if(evEvent.cdDesignator) {
 	  this->warn("Setting object acted on via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
+	}
+      } else if(evEvent.strEventName == "symbolic-set-detected-object") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Setting detected object via json queries is not yet implemented!");
 	  // TODO(winkler): Implement this
 	}
       } else if(evEvent.strEventName == "symbolic-set-perception-request") {
