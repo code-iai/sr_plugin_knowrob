@@ -37,9 +37,9 @@ namespace beliefstate {
 	this->setSubscribedToEvent("symbolic-equate-designators", true);
 	this->setSubscribedToEvent("symbolic-add-failure", true);
 	this->setSubscribedToEvent("symbolic-create-designator", true);
+	this->setSubscribedToEvent("symbolic-add-designator", true);
 	
 	// TODO(winkler): Fully implement these events
-	this->setSubscribedToEvent("symbolic-add-designator", true);
 	this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
 	this->setSubscribedToEvent("symbolic-set-perception-request", true);
 	this->setSubscribedToEvent("symbolic-set-perception-result", true);
