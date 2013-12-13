@@ -211,10 +211,21 @@ namespace beliefstate {
 		evPercReq.lstNodes = evEvent.lstNodes;
 		this->deployEvent(evPercReq);
 	      } else if(strAnnotation == "perception-result") {
-		Event evPercReq = defaultEvent("symbolic-set-perception-result");
-		evPercReq.cdDesignator = new CDesignator(cdDesig);
-		evPercReq.lstNodes = evEvent.lstNodes;
-		this->deployEvent(evPercReq);
+		// TODO(winkler): These two must be distinguished. Talk to Moritz about it.
+		Event evPercRes = defaultEvent("symbolic-set-perception-result");
+		evPercRes.cdDesignator = new CDesignator(cdDesig);
+		evPercRes.lstNodes = evEvent.lstNodes;
+		this->deployEvent(evPercRes);
+		
+		Event evDetObj = defaultEvent("symbolic-set-detected-object");
+		evDetObj.cdDesignator = new CDesignator(cdDesig);
+		evDetObj.lstNodes = evEvent.lstNodes;
+		this->deployEvent(evDetObj);
+	      } else if(strAnnotation == "object-acted-on") {
+		Event evObjActedOn = defaultEvent("symbolic-set-object-acted-on");
+		evObjActedOn.cdDesignator = new CDesignator(cdDesig);
+		evObjActedOn.lstNodes = evEvent.lstNodes;
+		this->deployEvent(evObjActedOn);
 	      } else {
 		string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
 		string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
