@@ -36,13 +36,13 @@ namespace beliefstate {
 	this->setSubscribedToEvent("symbolic-add-image", true);
 	this->setSubscribedToEvent("symbolic-equate-designators", true);
 	
-	// TODO(winkler): Implement these events
-	// this->setSubscribedToEvent("symbolic-add-failure", true);
-	// this->setSubscribedToEvent("symbolic-create-designator", true);
-	// this->setSubscribedToEvent("symbolic-add-designator", true);
-	// this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
-	// this->setSubscribedToEvent("symbolic-set-perception-request", true);
-	// this->setSubscribedToEvent("symbolic-set-perception-result", true);
+	// TODO(winkler): Fully implement these events
+	this->setSubscribedToEvent("symbolic-add-failure", true);
+	this->setSubscribedToEvent("symbolic-create-designator", true);
+	this->setSubscribedToEvent("symbolic-add-designator", true);
+	this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
+	this->setSubscribedToEvent("symbolic-set-perception-request", true);
+	this->setSubscribedToEvent("symbolic-set-perception-result", true);
       } else {
 	resInit.bSuccess = false;
       }
@@ -155,6 +155,36 @@ namespace beliefstate {
 	  } else {
 	    this->warn("Cannot equate designators '" + strParentID + "' and '" + strChildID + "'.");
 	  }
+	}
+      } else if(evEvent.strEventName == "symbolic-add-failure") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Adding failures via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
+	}
+      } else if(evEvent.strEventName == "symbolic-create-designator") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Creating designators via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
+	}
+      } else if(evEvent.strEventName == "symbolic-add-designator") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Adding designators via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
+	}
+      } else if(evEvent.strEventName == "symbolic-set-object-acted-on") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Setting object acted on via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
+	}
+      } else if(evEvent.strEventName == "symbolic-set-perception-request") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Setting perception requests via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
+	}
+      } else if(evEvent.strEventName == "symbolic-set-perception-result") {
+	if(evEvent.cdDesignator) {
+	  this->warn("Setting perception result via json queries is not yet implemented!");
+	  // TODO(winkler): Implement this
 	}
       }
     }
