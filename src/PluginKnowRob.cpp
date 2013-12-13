@@ -35,10 +35,10 @@ namespace beliefstate {
 	this->setSubscribedToEvent("symbolic-set-subcontext", true);
 	this->setSubscribedToEvent("symbolic-add-image", true);
 	this->setSubscribedToEvent("symbolic-equate-designators", true);
-	
-	// TODO(winkler): Fully implement these events
 	this->setSubscribedToEvent("symbolic-add-failure", true);
 	this->setSubscribedToEvent("symbolic-create-designator", true);
+	
+	// TODO(winkler): Fully implement these events
 	this->setSubscribedToEvent("symbolic-add-designator", true);
 	this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
 	this->setSubscribedToEvent("symbolic-set-perception-request", true);
@@ -177,15 +177,57 @@ namespace beliefstate {
 	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
-      } else if(evEvent.strEventName == "symbolic-create-designator") {
-	if(evEvent.cdDesignator) {
-	  this->warn("Creating designators via json queries is not yet implemented!");
-	  // TODO(winkler): Implement this
-	}
       } else if(evEvent.strEventName == "symbolic-add-designator") {
 	if(evEvent.cdDesignator) {
-	  this->warn("Adding designators via json queries is not yet implemented!");
-	  // TODO(winkler): Implement this
+	  if(evEvent.lstNodes.size() > 0) {
+	    CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
+	    string strID = cdDesig->stringValue("_id");
+	    
+	    Node* ndNode = evEvent.lstNodes.front();
+	    
+	    // NOTE(winkler): Check if the designator already
+	    // exists. Only existing designators may be added. This
+	    // could be changed and an implicit `create' could be done
+	    // here, as it only modifies local data and we can do the
+	    // appropriate prolog calls from here. Right now, this is
+	    // not the case.
+	    if(m_mapDesignatorInstanceMapping.count(strID) == 1) {
+	      string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	      string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
+	      
+	      string strQuery = "cram_add_desig_to_action(" +
+		string("'") + strActionInstance + "', " +
+		"'" + strDesignatorInstance + "'" +
+		")";
+	      
+	      bool bSuccess;
+	      PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    }
+	  }
+	}
+      } else if(evEvent.strEventName == "symbolic-create-designator") {
+	if(evEvent.cdDesignator) {
+	  CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
+	  string strID = cdDesig->stringValue("_id");
+	  
+	  // Make sure this designator is not yet added.
+	  if(m_mapDesignatorInstanceMapping.count(strID) == 0) {
+	    // Its not in the map.
+	    string strType = (cdDesig->type() == ACTION ? "ACTION" : (cdDesig->type() == LOCATION ? "LOCATION" : "OBJECT"));
+	    
+	    string strQuery = "cram_create_desig(" +
+	      string("'") + strType + "', " +
+	      "DESIGNATORINSTANCE"
+	      + ")";
+	    
+	    bool bSuccess;
+	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    
+	    if(bSuccess) {
+	      string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
+	      m_mapDesignatorInstanceMapping[strID] = strDesignatorInstance;
+	    }
+	  }
 	}
       } else if(evEvent.strEventName == "symbolic-set-object-acted-on") {
 	if(evEvent.cdDesignator) {

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <map>
 
 // json_prolog
 #include <json_prolog/prolog.h>
@@ -27,6 +28,7 @@ namespace beliefstate {
     private:
       CExporterOwl* m_expOwl;
       Prolog* m_prlgProlog;
+      map<string, string> m_mapDesignatorInstanceMapping;
       
     public:
       PluginKnowRob();
