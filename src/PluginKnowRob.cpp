@@ -158,8 +158,24 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "symbolic-add-failure") {
 	if(evEvent.cdDesignator) {
-	  this->warn("Adding failures via json queries is not yet implemented!");
-	  // TODO(winkler): Implement this
+	  if(evEvent.lstNodes.size() > 0) {
+	    Node* ndNode = evEvent.lstNodes.front();
+	    
+	    string strCondition = evEvent.cdDesignator->stringValue("condition");
+	    string strTimeFail = evEvent.cdDesignator->stringValue("time-failure");
+	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    
+	    string strQuery = "cram_add_failure_to_action(" +
+	      string("'") + strActionInstance + "', " +
+	      "'" + m_expOwl->failureClassForCondition(strCondition) + "', " +
+	      "'" + m_expOwl->owlEscapeString(strCondition) + "', " +
+	      strTimeFail + ", " +
+	      "FAILUREINSTANCE" +
+	      ")";
+	    
+	    bool bSuccess;
+	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  }
 	}
       } else if(evEvent.strEventName == "symbolic-create-designator") {
 	if(evEvent.cdDesignator) {
