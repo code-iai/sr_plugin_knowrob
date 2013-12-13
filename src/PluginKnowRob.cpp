@@ -185,24 +185,35 @@ namespace beliefstate {
 	    string strID = cdDesig->stringValue("_id");
 	    
 	    Node* ndNode = evEvent.lstNodes.front();
+	    string strOwlClass = m_expOwl->owlClassForNode(ndNode);
 	    
-	    // NOTE(winkler): Check if the designator already
-	    // exists. Only existing designators may be added. This
-	    // could be changed and an implicit `create' could be done
-	    // here, as it only modifies local data and we can do the
-	    // appropriate prolog calls from here. Right now, this is
-	    // not the case.
-	    if(m_mapDesignatorInstanceMapping.count(strID) == 1) {
-	      string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-	      string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
+	    // Check if this node is related to perception or acting
+	    // on objects. If it is, leave it alone and trigger a new
+	    // event with the appropriate type. If it is not, add the
+	    // given designator as a regular designator for the given
+	    // node.
+	    if(strOwlClass == "VisualPerception") {
+	      // Visual perception -> perception request
+	      // TODO(winkler): Implement this.
+	    } else {
+	      // NOTE(winkler): Check if the designator already
+	      // exists. Only existing designators may be added. This
+	      // could be changed and an implicit `create' could be done
+	      // here, as it only modifies local data and we can do the
+	      // appropriate prolog calls from here. Right now, this is
+	      // not the case.
+	      if(m_mapDesignatorInstanceMapping.count(strID) == 1) {
+		string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+		string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
 	      
-	      string strQuery = "cram_add_desig_to_action(" +
-		string("'") + strActionInstance + "', " +
-		"'" + strDesignatorInstance + "'" +
-		")";
+		string strQuery = "cram_add_desig_to_action(" +
+		  string("'") + strActionInstance + "', " +
+		  "'" + strDesignatorInstance + "'" +
+		  ")";
 	      
-	      bool bSuccess;
-	      PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+		bool bSuccess;
+		PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	      }
 	    }
 	  }
 	}
@@ -261,6 +272,17 @@ namespace beliefstate {
 	bSuccess = true;
 	
 	this->info("Query successful: " + strQuery);
+	
+	map<string, PrologValue> mapBdgs = pbBdgs;
+	
+	for(map<string, PrologValue>::iterator itBdg = mapBdgs.begin();
+	    itBdg != mapBdgs.end();
+	    itBdg++) {
+	  string strName = (*itBdg).first;
+	  string strContent = pbBdgs[strName];
+	  
+	  this->info("  " + strName + " = '" + strContent + "'");
+	}
       } catch(PrologQueryProxy::QueryError qe) {
 	this->warn("Query error: " + string(qe.what()));
 	this->warn("While querying for: " + strQuery);
