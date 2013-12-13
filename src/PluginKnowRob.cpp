@@ -38,12 +38,12 @@ namespace beliefstate {
 	this->setSubscribedToEvent("symbolic-add-failure", true);
 	this->setSubscribedToEvent("symbolic-create-designator", true);
 	this->setSubscribedToEvent("symbolic-add-designator", true);
+	this->setSubscribedToEvent("symbolic-set-perception-request", true);
+	this->setSubscribedToEvent("symbolic-set-perception-result", true);
 	
 	// TODO(winkler): Fully implement these events
 	this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
 	this->setSubscribedToEvent("symbolic-set-detected-object", true);
-	this->setSubscribedToEvent("symbolic-set-perception-request", true);
-	this->setSubscribedToEvent("symbolic-set-perception-result", true);
       } else {
 	resInit.bSuccess = false;
       }
@@ -186,26 +186,39 @@ namespace beliefstate {
 	    
 	    Node* ndNode = evEvent.lstNodes.front();
 	    string strOwlClass = m_expOwl->owlClassForNode(ndNode);
+	    string strAnnotation = cdDesig->stringValue("_annotation");
 	    
-	    // Check if this node is related to perception or acting
-	    // on objects. If it is, leave it alone and trigger a new
-	    // event with the appropriate type. If it is not, add the
-	    // given designator as a regular designator for the given
-	    // node.
-	    if(strOwlClass == "VisualPerception") {
-	      // Visual perception -> perception request
-	      // TODO(winkler): Implement this.
-	    } else {
-	      // NOTE(winkler): Check if the designator already
-	      // exists. Only existing designators may be added. This
-	      // could be changed and an implicit `create' could be done
-	      // here, as it only modifies local data and we can do the
-	      // appropriate prolog calls from here. Right now, this is
-	      // not the case.
-	      if(m_mapDesignatorInstanceMapping.count(strID) == 1) {
+	    // NOTE(winkler): Check if the designator already
+	    // exists. Only existing designators may be added. This
+	    // could be changed and an implicit `create' could be done
+	    // here, as it only modifies local data and we can do the
+	    // appropriate prolog calls from here. Right now, this is
+	    // not the case.
+	    if(m_mapDesignatorInstanceMapping.count(strID) == 0) {
+	      this->warn("Adding designator that was not created previously. Its created implicitly now. You might want to look into this.");
+	      this->addDesignator(cdDesig);
+	    }
+	    
+	    if(m_mapDesignatorInstanceMapping.count(strID) == 1) {
+	      // Check if this node is related to perception or acting
+	      // on objects. If it is, leave it alone and trigger a new
+	      // event with the appropriate type. If it is not, add the
+	      // given designator as a regular designator for the given
+	      // node.
+	      if(strAnnotation == "perception-request") {
+		Event evPercReq = defaultEvent("symbolic-set-perception-request");
+		evPercReq.cdDesignator = new CDesignator(cdDesig);
+		evPercReq.lstNodes = evEvent.lstNodes;
+		this->deployEvent(evPercReq);
+	      } else if(strAnnotation == "perception-result") {
+		Event evPercReq = defaultEvent("symbolic-set-perception-result");
+		evPercReq.cdDesignator = new CDesignator(cdDesig);
+		evPercReq.lstNodes = evEvent.lstNodes;
+		this->deployEvent(evPercReq);
+	      } else {
 		string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
 		string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
-	      
+		
 		string strQuery = "cram_add_desig_to_action(" +
 		  string("'") + strActionInstance + "', " +
 		  "'" + strDesignatorInstance + "'" +
@@ -220,25 +233,10 @@ namespace beliefstate {
       } else if(evEvent.strEventName == "symbolic-create-designator") {
 	if(evEvent.cdDesignator) {
 	  CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
-	  string strID = cdDesig->stringValue("_id");
-	  
 	  // Make sure this designator is not yet added.
-	  if(m_mapDesignatorInstanceMapping.count(strID) == 0) {
+	  if(m_mapDesignatorInstanceMapping.count(cdDesig->stringValue("_id")) == 0) {
 	    // Its not in the map.
-	    string strType = (cdDesig->type() == ACTION ? "ACTION" : (cdDesig->type() == LOCATION ? "LOCATION" : "OBJECT"));
-	    
-	    string strQuery = "cram_create_desig(" +
-	      string("'") + strType + "', " +
-	      "DESIGNATORINSTANCE"
-	      + ")";
-	    
-	    bool bSuccess;
-	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
-	    
-	    if(bSuccess) {
-	      string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
-	      m_mapDesignatorInstanceMapping[strID] = strDesignatorInstance;
-	    }
+	    this->addDesignator(cdDesig);
 	  }
 	}
       } else if(evEvent.strEventName == "symbolic-set-object-acted-on") {
@@ -253,15 +251,61 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "symbolic-set-perception-request") {
 	if(evEvent.cdDesignator) {
-	  this->warn("Setting perception requests via json queries is not yet implemented!");
-	  // TODO(winkler): Implement this
+	  if(evEvent.lstNodes.size() > 0) {
+	    CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
+	    string strID = cdDesig->stringValue("_id");
+	    Node* ndNode = evEvent.lstNodes.front();
+	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    string strDesigID = m_mapDesignatorInstanceMapping[strID];
+	    
+	    string strQuery = "cram_set_perception_request(" +
+	      string("'") + strActionInstance + "', " +
+	      string("'") + strDesigID + "'"
+	      + ")";
+	    
+	    bool bSuccess;
+	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  }
 	}
       } else if(evEvent.strEventName == "symbolic-set-perception-result") {
 	if(evEvent.cdDesignator) {
-	  this->warn("Setting perception result via json queries is not yet implemented!");
-	  // TODO(winkler): Implement this
+	  if(evEvent.lstNodes.size() > 0) {
+	    CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
+	    string strID = cdDesig->stringValue("_id");
+	    Node* ndNode = evEvent.lstNodes.front();
+	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    string strDesigID = m_mapDesignatorInstanceMapping[strID];
+	    
+	    string strQuery = "cram_set_perception_result(" +
+	      string("'") + strActionInstance + "', " +
+	      string("'") + strDesigID + "'"
+	      + ")";
+	    
+	    bool bSuccess;
+	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  }
 	}
       }
+    }
+    
+    bool PluginKnowRob::addDesignator(CDesignator* cdDesig) {
+      string strID = cdDesig->stringValue("_id");
+      string strType = (cdDesig->type() == ACTION ? "ACTION" : (cdDesig->type() == LOCATION ? "LOCATION" : "OBJECT"));
+      
+      string strQuery = "cram_create_desig(" +
+	string("'") + strType + "', " +
+	"DESIGNATORINSTANCE"
+	+ ")";
+      
+      bool bSuccess;
+      PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+      
+      if(bSuccess) {
+	string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
+	m_mapDesignatorInstanceMapping[strID] = strDesignatorInstance;
+      }
+      
+      return bSuccess;
     }
     
     PrologBindings PluginKnowRob::assertQuery(string strQuery, bool& bSuccess) {

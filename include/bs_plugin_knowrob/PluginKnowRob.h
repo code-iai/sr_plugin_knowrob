@@ -41,6 +41,7 @@ namespace beliefstate {
       
       virtual void consumeEvent(Event evEvent);
       
+      bool addDesignator(CDesignator* cdDesig);
       PrologBindings assertQuery(string strQuery, bool& bSuccess);
     };
   }
