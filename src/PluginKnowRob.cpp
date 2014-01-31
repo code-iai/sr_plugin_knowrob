@@ -26,7 +26,7 @@ namespace beliefstate {
       m_prlgProlog = new Prolog("/knowrob");
       m_expOwl = new CExporterOwl();
       
-      bool bInitOK = m_prlgProlog->waitForServer(ros::Duration(5));
+      bool bInitOK = m_prlgProlog->waitForServer(ros::Duration(1));
       
       if(bInitOK) {
 	// Plan node control events
@@ -234,7 +234,7 @@ namespace beliefstate {
 		  string("'") + strActionInstance + "', " +
 		  "'" + strDesignatorInstance + "'" +
 		  ")";
-	      
+		
 		bool bSuccess;
 		PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	      }
