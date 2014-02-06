@@ -8,6 +8,7 @@ namespace beliefstate {
       m_expOwl = NULL;
       
       this->addDependency("ros");
+      this->setDevelopmentPlugin(true);
     }
     
     PluginKnowRob::~PluginKnowRob() {
