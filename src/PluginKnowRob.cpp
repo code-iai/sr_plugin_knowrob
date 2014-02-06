@@ -9,6 +9,7 @@ namespace beliefstate {
       
       this->addDependency("ros");
       this->setDevelopmentPlugin(true);
+      this->setPluginVersion("0.25b");
     }
     
     PluginKnowRob::~PluginKnowRob() {
