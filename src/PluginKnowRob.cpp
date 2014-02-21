@@ -25,10 +25,18 @@ namespace beliefstate {
     Result PluginKnowRob::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
-      m_prlgProlog = new Prolog("/knowrob");
+      string strJSONService = "/json_prolog";// "knowrob"
+      m_prlgProlog = new Prolog(strJSONService);
       m_expOwl = new CExporterOwl();
       
-      bool bInitOK = m_prlgProlog->waitForServer(ros::Duration(1));
+      float fWaitDuration = -1; // 1
+      bool bInitOK = false;
+      
+      if(fWaitDuration == -1) {
+	bInitOK = m_prlgProlog->waitForServer();
+      } else {
+	bInitOK = m_prlgProlog->waitForServer(ros::Duration(fWaitDuration));
+      }
       
       if(bInitOK) {
 	// Plan node control events
