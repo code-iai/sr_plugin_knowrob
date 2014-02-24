@@ -91,7 +91,7 @@ namespace beliefstate {
 	    strOWLClass + ", " +
 	    "'" + strTaskContextDescription + "', " +
 	    strTimeStart + ", " +
-	    strPreviousAction + ", ACTIONINSTANCE)";
+	    "'" + strPreviousAction + "', ACTIONINSTANCE)";
 	  
 	  bool bSuccess;
 	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
