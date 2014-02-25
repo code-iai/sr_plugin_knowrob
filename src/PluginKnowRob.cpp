@@ -87,6 +87,11 @@ namespace beliefstate {
 	    strPreviousAction = ndPrevious->metaInformation()->stringValue("action-instance");
 	  }
 	  
+	  if(strPreviousAction == "") {
+	    this->warn("The previous node exists but does not supply an ID. Assuming '_'. This is potentially problematic.");
+	    strPreviousAction = "_";
+	  }
+	  
 	  string strQuery = "cram_start_action(" +
 	    strOWLClass + ", " +
 	    "'" + strTaskContextDescription + "', " +
