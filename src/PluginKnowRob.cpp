@@ -25,11 +25,22 @@ namespace beliefstate {
     Result PluginKnowRob::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
-      string strJSONService = "/json_prolog";// "knowrob"
+      CDesignator* cdConfig = this->getIndividualConfig();
+      
+      string strJSONService = cdConfig->stringValue("json-service");
+      if(strJSONService == "") {
+	strJSONService = "/json_prolog";
+      }
+      
       m_prlgProlog = new Prolog(strJSONService);
       m_expOwl = new CExporterOwl();
       
-      float fWaitDuration = -1; // 1
+      float fWaitDuration = -1;
+      
+      if(cdConfig->childForKey("wait-for-service-duration")) {
+	fWaitDuration = cdConfig->floatValue("wait-for-service-duration");
+      }
+      
       bool bInitOK = false;
       
       if(fWaitDuration == -1) {
