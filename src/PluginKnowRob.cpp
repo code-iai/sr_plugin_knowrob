@@ -35,11 +35,10 @@ namespace beliefstate {
       m_prlgProlog = new Prolog(strJSONService);
       m_expOwl = new CExporterOwl();
       
-      CDesignator* cdConfig = this->getIndividualConfig();
       string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
       
       if(strSemanticsDescriptorFile != "") {
-	if(expOwl->loadSemanticsDescriptorFile(strSemanticsDescriptorFile) == false) {
+	if(m_expOwl->loadSemanticsDescriptorFile(strSemanticsDescriptorFile) == false) {
 	  this->warn("Failed to load semantics descriptor file '" + strSemanticsDescriptorFile + "'.");
 	}
       } else {

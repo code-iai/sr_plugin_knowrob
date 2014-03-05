@@ -28,7 +28,8 @@ rosbuild_add_library(bs_plugin_knowrob
   src/PluginKnowRob.cpp)
 
 target_link_libraries(bs_plugin_knowrob
-  bs_plugin_owlexporter)
+  bs_plugin_owlexporter
+  config++)
 
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
