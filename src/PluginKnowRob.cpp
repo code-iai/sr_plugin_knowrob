@@ -53,28 +53,32 @@ namespace beliefstate {
       
       bool bInitOK = false;
       
-      if(fWaitDuration == -1) {
-	bInitOK = m_prlgProlog->waitForServer();
-      } else {
-	bInitOK = m_prlgProlog->waitForServer(ros::Duration(fWaitDuration));
-      }
+      if(ros::ok()) {
+	if(fWaitDuration == -1) {
+	  bInitOK = m_prlgProlog->waitForServer();
+	} else {
+	  bInitOK = m_prlgProlog->waitForServer(ros::Duration(fWaitDuration));
+	}
       
-      if(bInitOK) {
-	// Plan node control events
-	this->setSubscribedToEvent("symbolic-begin-context", true);
-	this->setSubscribedToEvent("symbolic-end-context", true);
-	this->setSubscribedToEvent("symbolic-set-subcontext", true);
-	this->setSubscribedToEvent("symbolic-add-image", true);
-	this->setSubscribedToEvent("symbolic-equate-designators", true);
-	this->setSubscribedToEvent("symbolic-add-failure", true);
-	this->setSubscribedToEvent("symbolic-create-designator", true);
-	this->setSubscribedToEvent("symbolic-add-designator", true);
-	this->setSubscribedToEvent("symbolic-set-perception-request", true);
-	this->setSubscribedToEvent("symbolic-set-perception-result", true);
+	if(bInitOK) {
+	  // Plan node control events
+	  this->setSubscribedToEvent("symbolic-begin-context", true);
+	  this->setSubscribedToEvent("symbolic-end-context", true);
+	  this->setSubscribedToEvent("symbolic-set-subcontext", true);
+	  this->setSubscribedToEvent("symbolic-add-image", true);
+	  this->setSubscribedToEvent("symbolic-equate-designators", true);
+	  this->setSubscribedToEvent("symbolic-add-failure", true);
+	  this->setSubscribedToEvent("symbolic-create-designator", true);
+	  this->setSubscribedToEvent("symbolic-add-designator", true);
+	  this->setSubscribedToEvent("symbolic-set-perception-request", true);
+	  this->setSubscribedToEvent("symbolic-set-perception-result", true);
 	
-	// TODO(winkler): Fully implement these events
-	this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
-	this->setSubscribedToEvent("symbolic-set-detected-object", true);
+	  // TODO(winkler): Fully implement these events
+	  this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
+	  this->setSubscribedToEvent("symbolic-set-detected-object", true);
+	} else {
+	  resInit.bSuccess = false;
+	}
       } else {
 	resInit.bSuccess = false;
       }
