@@ -32,6 +32,7 @@ namespace beliefstate {
 	strJSONService = "/json_prolog";
       }
       
+      this->info("Waiting for JSONProlog node '" + strJSONService + "'");
       m_prlgProlog = new Prolog(strJSONService);
       m_expOwl = new CExporterOwl();
       
