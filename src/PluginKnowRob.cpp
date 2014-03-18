@@ -73,7 +73,9 @@ namespace beliefstate {
 	  this->setSubscribedToEvent("symbolic-add-designator", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-request", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-result", true);
-	
+	  
+	  this->setSubscribedToEvent("experiment-start", true);
+	  
 	  // TODO(winkler): Fully implement these events
 	  this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
 	  this->setSubscribedToEvent("symbolic-set-detected-object", true);
@@ -337,6 +339,17 @@ namespace beliefstate {
 	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
+      } else if(evEvent.strEventName == "experiment-start") {
+	// TODO: Start experiment here.
+	string strExperimentName = "";
+	string strFirstNodeName = "";
+	
+	string strQuery = "start_experiment('" +
+	  strExperimentName + "', " +
+	  strFirstNodeName + ")";
+	
+	bool bSuccess;
+	PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
       }
     }
     
