@@ -369,7 +369,7 @@ namespace beliefstate {
       
       if(bSuccess) {
 	//string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
-	m_mapDesignatorInstanceMapping[strID] = strID;
+	m_mapDesignatorInstanceMapping[strID] = "http://ias.cs.tum.edu/kb/cram_log.owl#" + strID;
       }
       
       return bSuccess;
