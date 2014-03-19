@@ -344,19 +344,19 @@ namespace beliefstate {
       
       switch(cdDesig->type()) {
       case ACTION:
-	strType = "CRAMActionDesignator";
+	strType += "CRAMActionDesignator";
 	break;
 
       case LOCATION:
-	strType = "CRAMLocationDesignator";
+	strType += "CRAMLocationDesignator";
 	break;
 
       case OBJECT:
-	strType = "CRAMObjectDesignator";
+	strType += "CRAMObjectDesignator";
 	break;
 
       default:
-	strType = "CRAMDesignator";
+	strType += "CRAMDesignator";
 	break;
       }
       
