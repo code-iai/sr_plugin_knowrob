@@ -368,8 +368,8 @@ namespace beliefstate {
       PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
       
       if(bSuccess) {
-	string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
-	m_mapDesignatorInstanceMapping[strID] = strDesignatorInstance;
+	//string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
+	m_mapDesignatorInstanceMapping[strID] = strID;
       }
       
       return bSuccess;
