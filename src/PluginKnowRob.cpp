@@ -74,8 +74,6 @@ namespace beliefstate {
 	  this->setSubscribedToEvent("symbolic-set-perception-request", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-result", true);
 	  
-	  this->setSubscribedToEvent("experiment-start", true);
-	  
 	  // TODO(winkler): Fully implement these events
 	  this->setSubscribedToEvent("symbolic-set-object-acted-on", true);
 	  this->setSubscribedToEvent("symbolic-set-detected-object", true);
@@ -242,45 +240,43 @@ namespace beliefstate {
 	      this->addDesignator(cdDesig);
 	    }
 	    
-	    if(m_mapDesignatorInstanceMapping.count(strID) == 1) {
-	      // Check if this node is related to perception or acting
-	      // on objects. If it is, leave it alone and trigger a new
-	      // event with the appropriate type. If it is not, add the
-	      // given designator as a regular designator for the given
-	      // node.
-	      if(strAnnotation == "perception-request") {
-		Event evPercReq = defaultEvent("symbolic-set-perception-request");
-		evPercReq.cdDesignator = new CDesignator(cdDesig);
-		evPercReq.lstNodes = evEvent.lstNodes;
-		this->deployEvent(evPercReq);
-	      } else if(strAnnotation == "perception-result") {
-		// TODO(winkler): These two must be distinguished. Talk to Moritz about it.
-		Event evPercRes = defaultEvent("symbolic-set-perception-result");
-		evPercRes.cdDesignator = new CDesignator(cdDesig);
-		evPercRes.lstNodes = evEvent.lstNodes;
-		this->deployEvent(evPercRes);
+	    // Check if this node is related to perception or acting
+	    // on objects. If it is, leave it alone and trigger a new
+	    // event with the appropriate type. If it is not, add the
+	    // given designator as a regular designator for the given
+	    // node.
+	    if(strAnnotation == "perception-request") {
+	      Event evPercReq = defaultEvent("symbolic-set-perception-request");
+	      evPercReq.cdDesignator = new CDesignator(cdDesig);
+	      evPercReq.lstNodes = evEvent.lstNodes;
+	      this->deployEvent(evPercReq);
+	    } else if(strAnnotation == "perception-result") {
+	      // TODO(winkler): These two must be distinguished. Talk to Moritz about it.
+	      Event evPercRes = defaultEvent("symbolic-set-perception-result");
+	      evPercRes.cdDesignator = new CDesignator(cdDesig);
+	      evPercRes.lstNodes = evEvent.lstNodes;
+	      this->deployEvent(evPercRes);
 		
-		Event evDetObj = defaultEvent("symbolic-set-detected-object");
-		evDetObj.cdDesignator = new CDesignator(cdDesig);
-		evDetObj.lstNodes = evEvent.lstNodes;
-		this->deployEvent(evDetObj);
-	      } else if(strAnnotation == "object-acted-on") {
-		Event evObjActedOn = defaultEvent("symbolic-set-object-acted-on");
-		evObjActedOn.cdDesignator = new CDesignator(cdDesig);
-		evObjActedOn.lstNodes = evEvent.lstNodes;
-		this->deployEvent(evObjActedOn);
-	      } else {
-		string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-		string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
+	      Event evDetObj = defaultEvent("symbolic-set-detected-object");
+	      evDetObj.cdDesignator = new CDesignator(cdDesig);
+	      evDetObj.lstNodes = evEvent.lstNodes;
+	      this->deployEvent(evDetObj);
+	    } else if(strAnnotation == "object-acted-on") {
+	      Event evObjActedOn = defaultEvent("symbolic-set-object-acted-on");
+	      evObjActedOn.cdDesignator = new CDesignator(cdDesig);
+	      evObjActedOn.lstNodes = evEvent.lstNodes;
+	      this->deployEvent(evObjActedOn);
+	    } else {
+	      string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	      string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
 		
-		string strQuery = "cram_add_desig_to_action(" +
-		  string("'") + strActionInstance + "', " +
-		  "'" + strDesignatorInstance + "'" +
-		  ")";
+	      string strQuery = "cram_add_desig_to_action(" +
+		string("'") + strActionInstance + "', " +
+		"'" + strDesignatorInstance + "'" +
+		")";
 		
-		bool bSuccess;
-		PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
-	      }
+	      bool bSuccess;
+	      PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	    }
 	  }
 	}
@@ -339,28 +335,34 @@ namespace beliefstate {
 	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
-      } else if(evEvent.strEventName == "experiment-start") {
-	// TODO: Start experiment here.
-	string strExperimentName = "";
-	string strFirstNodeName = "";
-	
-	string strQuery = "start_experiment('" +
-	  strExperimentName + "', " +
-	  strFirstNodeName + ")";
-	
-	bool bSuccess;
-	PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
       }
     }
     
     bool PluginKnowRob::addDesignator(CDesignator* cdDesig) {
       string strID = cdDesig->stringValue("_id");
-      string strType = (cdDesig->type() == ACTION ? "ACTION" : (cdDesig->type() == LOCATION ? "LOCATION" : "OBJECT"));
+      string strType = "http://ias.cs.tum.edu/kb/knowrob.owl#";
+      
+      switch(cdDesig->type()) {
+      case ACTION:
+	strType = "CRAMActionDesignator";
+	break;
+
+      case LOCATION:
+	strType = "CRAMLocationDesignator";
+	break;
+
+      case OBJECT:
+	strType = "CRAMObjectDesignator";
+	break;
+
+      default:
+	strType = "CRAMDesignator";
+	break;
+      }
       
       string strQuery = "cram_create_desig(" +
 	string("'") + strType + "', " +
-	"DESIGNATORINSTANCE"
-	+ ")";
+	"'http://ias.cs.tum.edu/kb/cram_log.owl#" + strID + "')";
       
       bool bSuccess;
       PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
