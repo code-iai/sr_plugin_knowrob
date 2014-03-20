@@ -29,6 +29,7 @@ namespace beliefstate {
       CExporterOwl* m_expOwl;
       Prolog* m_prlgProlog;
       map<string, string> m_mapDesignatorInstanceMapping;
+      bool m_bConnectionLess;
       
     public:
       PluginKnowRob();

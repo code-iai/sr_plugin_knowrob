@@ -6,9 +6,10 @@ namespace beliefstate {
     PluginKnowRob::PluginKnowRob() {
       m_prlgProlog = NULL;
       m_expOwl = NULL;
+      m_bConnectionLess = false;
       
       this->addDependency("ros");
-      this->setDevelopmentPlugin(true);
+      this->setDevelopmentPlugin(false);
       this->setPluginVersion("0.25b");
     }
     
@@ -52,15 +53,30 @@ namespace beliefstate {
 	fWaitDuration = cdConfig->floatValue("wait-for-service-duration");
       }
       
+      m_bConnectionLess = cdConfig->floatValue("connection-less");
+      
       bool bInitOK = false;
+      bool bConnectionOK = false;
       
-      if(ros::ok()) {
-	if(fWaitDuration == -1) {
-	  bInitOK = m_prlgProlog->waitForServer();
+      if(m_bConnectionLess) {
+	this->info("The KnowRob plugin is operating in connection-less mode.");
+	
+	bConnectionOK = true;
+      } else {
+	bConnectionOK = ros::ok();
+      }
+      
+      if(bConnectionOK) {
+	if(m_bConnectionLess) {
+	  bInitOK = true;
 	} else {
-	  bInitOK = m_prlgProlog->waitForServer(ros::Duration(fWaitDuration));
+	  if(fWaitDuration == -1) {
+	    bInitOK = m_prlgProlog->waitForServer();
+	  } else {
+	    bInitOK = m_prlgProlog->waitForServer(ros::Duration(fWaitDuration));
+	  }
 	}
-      
+	
 	if(bInitOK) {
 	  // Plan node control events
 	  this->setSubscribedToEvent("symbolic-begin-context", true);
@@ -124,12 +140,13 @@ namespace beliefstate {
 	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  
 	  if(bSuccess) {
-	    // TODO(winkler): Interprete the pbBdgs binding for `?actin'
-	    // here.
-	    string strActionInstance = pbBdgs["ACTIONINSTANCE"]; // Get this action instance
+	    string strActionInstance = "_";
 	    
-	    // from the prolog query
-	    // result.
+	    if(!m_bConnectionLess) {
+	      string strActionInstancePB = pbBdgs["ACTIONINSTANCE"];
+	      strActionInstance = strActionInstancePB;
+	    }
+	    
 	    ndNode->metaInformation()->setValue("action-instance", strActionInstance);
 	  }
 	}
@@ -337,26 +354,31 @@ namespace beliefstate {
     PrologBindings PluginKnowRob::assertQuery(string strQuery, bool& bSuccess) {
       PrologBindings pbBdgs;
       
-      try {
-	pbBdgs = m_prlgProlog->once(strQuery);
+      if(m_bConnectionLess) {
+	this->info("Connectionless query: " + strQuery);
 	bSuccess = true;
+      } else {
+	try {
+	  pbBdgs = m_prlgProlog->once(strQuery);
+	  bSuccess = true;
 	
-	this->info("Query successful: " + strQuery);
+	  this->info("Query successful: " + strQuery);
 	
-	map<string, PrologValue> mapBdgs = pbBdgs;
+	  map<string, PrologValue> mapBdgs = pbBdgs;
 	
-	for(map<string, PrologValue>::iterator itBdg = mapBdgs.begin();
-	    itBdg != mapBdgs.end();
-	    itBdg++) {
-	  string strName = (*itBdg).first;
-	  string strContent = pbBdgs[strName];
+	  for(map<string, PrologValue>::iterator itBdg = mapBdgs.begin();
+	      itBdg != mapBdgs.end();
+	      itBdg++) {
+	    string strName = (*itBdg).first;
+	    string strContent = pbBdgs[strName];
 	  
-	  this->info("  " + strName + " = '" + strContent + "'");
+	    this->info("  " + strName + " = '" + strContent + "'");
+	  }
+	} catch(PrologQueryProxy::QueryError qe) {
+	  this->warn("Query error: " + string(qe.what()));
+	  this->warn("While querying for: " + strQuery);
+	  bSuccess = false;
 	}
-      } catch(PrologQueryProxy::QueryError qe) {
-	this->warn("Query error: " + string(qe.what()));
-	this->warn("While querying for: " + strQuery);
-	bSuccess = false;
       }
       
       return pbBdgs;
