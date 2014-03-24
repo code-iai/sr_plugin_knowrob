@@ -242,12 +242,6 @@ namespace beliefstate {
 	    string strOwlClass = m_expOwl->owlClassForNode(ndNode);
 	    string strAnnotation = cdDesig->stringValue("_annotation");
 	    
-	    // NOTE(winkler): Check if the designator already
-	    // exists. Only existing designators may be added. This
-	    // could be changed and an implicit `create' could be done
-	    // here, as it only modifies local data and we can do the
-	    // appropriate prolog calls from here. Right now, this is
-	    // not the case.
 	    if(m_mapDesignatorInstanceMapping.count(strID) == 0) {
 	      this->warn("Adding designator that was not created previously. Its created implicitly now. You might want to look into this.");
 	      this->addDesignator(cdDesig);
