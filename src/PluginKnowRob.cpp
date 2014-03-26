@@ -240,7 +240,7 @@ namespace beliefstate {
 	    
 	    Node* ndNode = evEvent.lstNodes.front();
 	    string strOwlClass = m_expOwl->owlClassForNode(ndNode);
-	    string strAnnotation = cdDesig->stringValue("_annotation");
+	    string strAnnotation = evEvent.strAnnotation;//cdDesig->stringValue("_annotation");
 	    
 	    if(m_mapDesignatorInstanceMapping.count(strID) == 0) {
 	      this->warn("Adding designator that was not created previously. Its created implicitly now. You might want to look into this.");
@@ -255,7 +255,7 @@ namespace beliefstate {
 	      string("'") + strActionInstance + "', " +
 	      "knowrob:" + strDesigPurpose + ", " +
 	      "'" + strDesignatorInstance + "')";
-		
+	    
 	    bool bSuccess;
 	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
