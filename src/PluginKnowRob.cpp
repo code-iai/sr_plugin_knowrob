@@ -3,7 +3,7 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginKnowRob::PluginKnowRob() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
       m_prlgProlog = NULL;
       m_expOwl = NULL;
       m_bConnectionLess = false;
@@ -13,7 +13,7 @@ namespace beliefstate {
       this->setPluginVersion("0.25b");
     }
     
-    PluginKnowRob::~PluginKnowRob() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
       if(m_prlgProlog) {
 	delete m_prlgProlog;
       }
@@ -23,21 +23,21 @@ namespace beliefstate {
       }
     }
     
-    Result PluginKnowRob::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       CDesignator* cdConfig = this->getIndividualConfig();
       
-      string strJSONService = cdConfig->stringValue("json-service");
+      std::string strJSONService = cdConfig->stringValue("json-service");
       if(strJSONService == "") {
 	strJSONService = "/json_prolog";
       }
       
       this->info("Waiting for JSONProlog node '" + strJSONService + "'");
-      m_prlgProlog = new Prolog(strJSONService);
+      m_prlgProlog = new json_prolog::Prolog(strJSONService);
       m_expOwl = new CExporterOwl();
       
-      string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
+      std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
       
       if(strSemanticsDescriptorFile != "") {
 	if(m_expOwl->loadSemanticsDescriptorFile(strSemanticsDescriptorFile) == false) {
@@ -99,26 +99,26 @@ namespace beliefstate {
       return resInit;
     }
     
-    Result PluginKnowRob::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
     
-    Result PluginKnowRob::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
       
       return resCycle;
     }
     
-    void PluginKnowRob::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
 	  Node* ndNode = evEvent.lstNodes.front();
 	  
-	  string strOWLClass = m_expOwl->owlClassForNode(ndNode, false, true);
-	  string strTaskContextDescription = ndNode->title();
-	  string strTimeStart = ndNode->metaInformation()->stringValue("time-start");
-	  string strPreviousAction = "_";
+	  std::string strOWLClass = m_expOwl->owlClassForNode(ndNode, false, true);
+	  std::string strTaskContextDescription = ndNode->title();
+	  std::string strTimeStart = ndNode->metaInformation()->stringValue("time-start");
+	  std::string strPreviousAction = "_";
 	  
 	  Node* ndPrevious = ndNode->previousNode();
 	  if(ndPrevious) {
@@ -130,20 +130,20 @@ namespace beliefstate {
 	    strPreviousAction = "_";
 	  }
 	  
-	  string strQuery = "cram_start_action(" +
+	  std::string strQuery = "cram_start_action(" +
 	    strOWLClass + ", " +
 	    "'" + strTaskContextDescription + "', " +
 	    strTimeStart + ", " +
 	    "'" + strPreviousAction + "', ACTIONINSTANCE)";
 	  
 	  bool bSuccess;
-	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  
 	  if(bSuccess) {
-	    string strActionInstance = "_";
+	    std::string strActionInstance = "_";
 	    
 	    if(!m_bConnectionLess) {
-	      string strActionInstancePB = pbBdgs["ACTIONINSTANCE"];
+	      std::string strActionInstancePB = pbBdgs["ACTIONINSTANCE"];
 	      strActionInstance = strActionInstancePB;
 	    }
 	    
@@ -154,15 +154,15 @@ namespace beliefstate {
 	if(evEvent.lstNodes.size() > 0) {
 	  Node* ndNode = evEvent.lstNodes.front();
 	  
-	  string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-	  string strTimeEnd = ndNode->metaInformation()->stringValue("time-end");
+	  std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	  std::string strTimeEnd = ndNode->metaInformation()->stringValue("time-end");
 	  
-	  string strQuery = "cram_finish_action(" +
+	  std::string strQuery = "cram_finish_action(" +
 	    string("'") + strActionInstance + string("', ") +
 	    strTimeEnd + ")";
 	  
 	  bool bSuccess;
-	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	}
       } else if(evEvent.strEventName == "symbolic-set-subcontext") {
 	if(evEvent.lstNodes.size() > 1) {
@@ -170,43 +170,43 @@ namespace beliefstate {
 	  evEvent.lstNodes.pop_front();
 	  Node* ndChild = evEvent.lstNodes.front();
 	  
-	  string strActionInstanceParent = ndParent->metaInformation()->stringValue("action-instance");
-	  string strActionInstanceChild = ndChild->metaInformation()->stringValue("action-instance");
+	  std::string strActionInstanceParent = ndParent->metaInformation()->stringValue("action-instance");
+	  std::string strActionInstanceChild = ndChild->metaInformation()->stringValue("action-instance");
 	  
-	  string strQuery = "cram_set_subaction(" +
+	  std::string strQuery = "cram_set_subaction(" +
 	    string("'") + strActionInstanceParent + string("', ") +
 	    string("'") + strActionInstanceChild + "')";
 	  
 	  bool bSuccess;
-	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	}
       } else if(evEvent.strEventName == "symbolic-add-image") {
 	if(evEvent.lstNodes.size() > 0) {
 	  Node* ndNode = evEvent.lstNodes.front();
-	  string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-	  string strFilename = evEvent.cdDesignator->stringValue("filename");
+	  std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	  std::string strFilename = evEvent.cdDesignator->stringValue("filename");
 	  
-	  string strQuery = "cram_add_image_to_event(" +
+	  std::string strQuery = "cram_add_image_to_event(" +
 	    string("'") + strActionInstance + string("', ") +
 	    string("'") + strFilename + string("')");
 	  
 	  bool bSuccess;
-	  PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	}
       } else if(evEvent.strEventName == "symbolic-equate-designators") {
 	if(evEvent.cdDesignator) {
-	  string strParentID = evEvent.cdDesignator->stringValue("parent-id");
-	  string strChildID = evEvent.cdDesignator->stringValue("child-id");
-	  string strEquationTime = evEvent.cdDesignator->stringValue("equation-time");
+	  std::string strParentID = evEvent.cdDesignator->stringValue("parent-id");
+	  std::string strChildID = evEvent.cdDesignator->stringValue("child-id");
+	  std::string strEquationTime = evEvent.cdDesignator->stringValue("equation-time");
 	  
 	  if(strParentID != "" && strChildID != "") {
-	    string strQuery = "cram_equate_designators(" +
+	    std::string strQuery = "cram_equate_designators(" +
 	      string("'") + strParentID + string("', ") +
 	      string("'") + strChildID + string("', ") +
 	      strEquationTime + string(")");
 	    
 	    bool bSuccess;
-	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  } else {
 	    this->warn("Cannot equate designators '" + strParentID + "' and '" + strChildID + "'.");
 	  }
@@ -216,11 +216,11 @@ namespace beliefstate {
 	  if(evEvent.lstNodes.size() > 0) {
 	    Node* ndNode = evEvent.lstNodes.front();
 	    
-	    string strCondition = evEvent.cdDesignator->stringValue("condition");
-	    string strTimeFail = evEvent.cdDesignator->stringValue("time-failure");
-	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    std::string strCondition = evEvent.cdDesignator->stringValue("condition");
+	    std::string strTimeFail = evEvent.cdDesignator->stringValue("time-failure");
+	    std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
 	    
-	    string strQuery = "cram_add_failure_to_action(" +
+	    std::string strQuery = "cram_add_failure_to_action(" +
 	      string("'") + strActionInstance + "', " +
 	      "'" + m_expOwl->failureClassForCondition(strCondition) + "', " +
 	      "'" + m_expOwl->owlEscapeString(strCondition) + "', " +
@@ -229,35 +229,35 @@ namespace beliefstate {
 	      ")";
 	    
 	    bool bSuccess;
-	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
       } else if(evEvent.strEventName == "symbolic-add-designator") {
 	if(evEvent.cdDesignator) {
 	  if(evEvent.lstNodes.size() > 0) {
 	    CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
-	    string strID = cdDesig->stringValue("_id");
+	    std::string strID = cdDesig->stringValue("_id");
 	    
 	    Node* ndNode = evEvent.lstNodes.front();
-	    string strOwlClass = m_expOwl->owlClassForNode(ndNode);
-	    string strAnnotation = evEvent.strAnnotation;//cdDesig->stringValue("_annotation");
+	    std::string strOwlClass = m_expOwl->owlClassForNode(ndNode);
+	    std::string strAnnotation = evEvent.strAnnotation;//cdDesig->stringValue("_annotation");
 	    
 	    if(m_mapDesignatorInstanceMapping.count(strID) == 0) {
 	      this->warn("Adding designator that was not created previously. Its created implicitly now. You might want to look into this.");
 	      this->addDesignator(cdDesig);
 	    }
 	    
-	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-	    string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
+	    std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    std::string strDesignatorInstance = m_mapDesignatorInstanceMapping[strID];
 	    
-	    string strDesigPurpose = m_expOwl->resolveDesignatorAnnotationTagName(strAnnotation);
-	    string strQuery = "cram_add_desig_to_action(" +
+	    std::string strDesigPurpose = m_expOwl->resolveDesignatorAnnotationTagName(strAnnotation);
+	    std::string strQuery = "cram_add_desig_to_action(" +
 	      string("'") + strActionInstance + "', " +
 	      "knowrob:" + strDesigPurpose + ", " +
 	      "'" + strDesignatorInstance + "')";
 	    
 	    bool bSuccess;
-	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
       } else if(evEvent.strEventName == "symbolic-create-designator") {
@@ -273,69 +273,69 @@ namespace beliefstate {
 	if(evEvent.cdDesignator) {
 	  if(evEvent.lstNodes.size() > 0) {
 	    CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
-	    string strID = cdDesig->stringValue("_id");
+	    std::string strID = cdDesig->stringValue("_id");
 	    Node* ndNode = evEvent.lstNodes.front();
-	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-	    string strDesigID = m_mapDesignatorInstanceMapping[strID];
+	    std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    std::string strDesigID = m_mapDesignatorInstanceMapping[strID];
 	    
-	    string strQuery = "cram_set_perception_request(" +
+	    std::string strQuery = "cram_set_perception_request(" +
 	      string("'") + strActionInstance + "', " +
 	      string("'") + strDesigID + "'"
 	      + ")";
 	    
 	    bool bSuccess;
-	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
       } else if(evEvent.strEventName == "symbolic-set-perception-result") {
 	if(evEvent.cdDesignator) {
 	  if(evEvent.lstNodes.size() > 0) {
 	    CDesignator* cdDesig = evEvent.cdDesignator; // NOTE(winkler): Convenience.
-	    string strID = cdDesig->stringValue("_id");
+	    std::string strID = cdDesig->stringValue("_id");
 	    Node* ndNode = evEvent.lstNodes.front();
-	    string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
-	    string strDesigID = m_mapDesignatorInstanceMapping[strID];
+	    std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
+	    std::string strDesigID = m_mapDesignatorInstanceMapping[strID];
 	    
-	    string strQuery = "cram_set_perception_result(" +
+	    std::string strQuery = "cram_set_perception_result(" +
 	      string("'") + strActionInstance + "', " +
 	      string("'") + strDesigID + "'"
 	      + ")";
 	    
 	    bool bSuccess;
-	    PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
 	}
       }
     }
     
-    bool PluginKnowRob::addDesignator(CDesignator* cdDesig) {
-      string strID = cdDesig->stringValue("_id");
-      string strType = "http://ias.cs.tum.edu/kb/knowrob.owl#";
+    bool PLUGIN_CLASS::addDesignator(CDesignator* cdDesig) {
+      std::string strID = cdDesig->stringValue("_id");
+      std::string strType = "http://ias.cs.tum.edu/kb/knowrob.owl#";
       
       switch(cdDesig->type()) {
       case ACTION:
 	strType += "CRAMActionDesignator";
 	break;
-
+	
       case LOCATION:
 	strType += "CRAMLocationDesignator";
 	break;
-
+	
       case OBJECT:
 	strType += "CRAMObjectDesignator";
 	break;
-
+	
       default:
 	strType += "CRAMDesignator";
 	break;
       }
       
-      string strQuery = "cram_create_desig(" +
+      std::string strQuery = "cram_create_desig(" +
 	string("'") + strType + "', " +
 	"'http://ias.cs.tum.edu/kb/cram_log.owl#" + strID + "')";
       
       bool bSuccess;
-      PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+      json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
       
       if(bSuccess) {
 	//string strDesignatorInstance = pbBdgs["DESIGNATORINSTANCE"];
@@ -345,8 +345,8 @@ namespace beliefstate {
       return bSuccess;
     }
     
-    PrologBindings PluginKnowRob::assertQuery(string strQuery, bool& bSuccess) {
-      PrologBindings pbBdgs;
+    json_prolog::PrologBindings PLUGIN_CLASS::assertQuery(std::string strQuery, bool& bSuccess) {
+      json_prolog::PrologBindings pbBdgs;
       
       if(m_bConnectionLess) {
 	this->info("Connectionless query: " + strQuery);
@@ -355,20 +355,18 @@ namespace beliefstate {
 	try {
 	  pbBdgs = m_prlgProlog->once(strQuery);
 	  bSuccess = true;
-	
-	  this->info("Query successful: " + strQuery);
-	
-	  map<string, PrologValue> mapBdgs = pbBdgs;
-	
-	  for(map<string, PrologValue>::iterator itBdg = mapBdgs.begin();
-	      itBdg != mapBdgs.end();
-	      itBdg++) {
-	    string strName = (*itBdg).first;
-	    string strContent = pbBdgs[strName];
 	  
+	  this->info("Query successful: " + strQuery);
+	  
+	  std::map<std::string, json_prolog::PrologValue> mapBdgs = pbBdgs;
+	  
+	  for(std::pair<std::string, json_prolog::PrologValue> prBinding : mapBdgs) {
+	    std::string strName = prBinding.first;
+	    std::string strContent = pbBdgs[strName];
+	    
 	    this->info("  " + strName + " = '" + strContent + "'");
 	  }
-	} catch(PrologQueryProxy::QueryError qe) {
+	} catch(json_prolog::PrologQueryProxy::QueryError qe) {
 	  this->warn("Query error: " + string(qe.what()));
 	  this->warn("While querying for: " + strQuery);
 	  bSuccess = false;
@@ -379,11 +377,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginKnowRob* createInstance() {
-    return new plugins::PluginKnowRob();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginKnowRob* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

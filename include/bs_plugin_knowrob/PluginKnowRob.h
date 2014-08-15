@@ -2,6 +2,9 @@
 #define __PLUGIN_KNOWROB_H__
 
 
+#define PLUGIN_CLASS PluginKnowRob
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -18,17 +21,14 @@
 #include <Plugin.h>
 #include <plugins/owlexporter/CExporterOwl.h>
 
-using namespace std;
-using namespace json_prolog;
-
 
 namespace beliefstate {
   namespace plugins {
-    class PluginKnowRob : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
       CExporterOwl* m_expOwl;
-      Prolog* m_prlgProlog;
-      map<string, string> m_mapDesignatorInstanceMapping;
+      json_prolog::Prolog* m_prlgProlog;
+      std::map<std::string, std::string> m_mapDesignatorInstanceMapping;
       bool m_bConnectionLess;
       
     public:
@@ -43,12 +43,12 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       
       bool addDesignator(CDesignator* cdDesig);
-      PrologBindings assertQuery(string strQuery, bool& bSuccess);
+      json_prolog::PrologBindings assertQuery(std::string strQuery, bool& bSuccess);
     };
   }
   
-  extern "C" plugins::PluginKnowRob* createInstance();
-  extern "C" void destroyInstance(plugins::PluginKnowRob* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 
