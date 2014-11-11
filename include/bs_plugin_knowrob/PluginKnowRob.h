@@ -42,7 +42,7 @@ namespace beliefstate {
       
       virtual void consumeEvent(Event evEvent);
       
-      bool addDesignator(CDesignator* cdDesig);
+      bool addDesignator(Designator* cdDesig);
       json_prolog::PrologBindings assertQuery(std::string strQuery, bool& bSuccess);
     };
   }
