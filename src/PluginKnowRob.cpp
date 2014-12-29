@@ -1,7 +1,7 @@
 #include <bs_plugin_knowrob/PluginKnowRob.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_prlgProlog = NULL;

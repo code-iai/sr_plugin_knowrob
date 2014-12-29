@@ -8,7 +8,7 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/bs_plugin_knowrob</url>
-  <depend package="beliefstate"/>
+  <depend package="semrec"/>
   <depend package="roscpp"/>
   <depend package="json_prolog"/>
 
