@@ -1,4 +1,4 @@
-#include <bs_plugin_knowrob/PluginKnowRob.h>
+#include <sr_plugin_knowrob/PluginKnowRob.h>
 
 
 namespace semrec {
