@@ -26,4 +26,8 @@
   <run_depend>roscpp</run_depend>
   <run_depend>json_prolog</run_depend>
   
+  <export>
+    <semrec plugin_path="${prefix}" />
+  </export>
+  
 </package>
