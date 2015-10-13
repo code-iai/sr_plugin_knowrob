@@ -20,5 +20,6 @@ add_library(sr_plugin_knowrob
   src/PluginKnowRob.cpp)
 
 target_link_libraries(sr_plugin_knowrob
+  ${catkin_LIBRARIES}
   sr_plugin_owlexporter
   config++)
