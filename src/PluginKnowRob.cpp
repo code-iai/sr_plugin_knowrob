@@ -170,15 +170,21 @@ namespace semrec {
 	  evEvent.lstNodes.pop_front();
 	  Node* ndChild = evEvent.lstNodes.front();
 	  
-	  std::string strActionInstanceParent = ndParent->metaInformation()->stringValue("action-instance");
-	  std::string strActionInstanceChild = ndChild->metaInformation()->stringValue("action-instance");
+	  if(ndParent && ndChild) {
+	    std::string strActionInstanceParent = ndParent->metaInformation()->stringValue("action-instance");
+	    std::string strActionInstanceChild = ndChild->metaInformation()->stringValue("action-instance");
 	  
-	  std::string strQuery = "cram_set_subaction(" +
-	    std::string("'") + strActionInstanceParent + std::string("', ") +
-	    std::string("'") + strActionInstanceChild + "')";
+	    std::string strQuery = "cram_set_subaction(" +
+	      std::string("'") + strActionInstanceParent + std::string("', ") +
+	      std::string("'") + strActionInstanceChild + "')";
 	  
-	  bool bSuccess;
-	  json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	    bool bSuccess;
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  } else {
+	    if(!ndParent) {
+	      this->warn("The former parent for `set-symbolic-subcontext` was not set. This probably means that this context is on top-level. Right now, no meta data individual is created here; you might want to consider this when your log-queries are not working.");
+	    }
+	  }
 	}
       } else if(evEvent.strEventName == "symbolic-add-image") {
 	if(evEvent.lstNodes.size() > 0) {
