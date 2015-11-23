@@ -40,6 +40,7 @@ namespace semrec {
       
       virtual Result cycle();
       
+      virtual Event consumeServiceEvent(ServiceEvent seEvent);
       virtual void consumeEvent(Event evEvent);
       
       bool addDesignator(Designator* cdDesig);

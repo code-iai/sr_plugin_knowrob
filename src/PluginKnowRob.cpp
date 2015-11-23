@@ -89,6 +89,8 @@ namespace semrec {
 	  this->setSubscribedToEvent("symbolic-add-designator", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-request", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-result", true);
+	  
+	  this->setOffersService("resolve-designator-knowrob-live-id", true);
 	} else {
 	  resInit.bSuccess = false;
 	}
@@ -108,6 +110,27 @@ namespace semrec {
       this->deployCycleData(resCycle);
       
       return resCycle;
+    }
+    
+    Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seEvent) {
+      Event evReturn = this->Plugin::consumeServiceEvent(seEvent);
+      
+      if(seEvent.siServiceIdentifier == SI_REQUEST) {
+	if(seEvent.strServiceName == "resolve-designator-knowrob-live-id") {
+	  ServiceEvent seResponse = eventInResponseTo(seEvent);
+	  Designator* cdRequest = seEvent.cdDesignator;
+	  
+	  seResponse.bPreserve = true;
+	  Designator* cdResponse = new Designator();
+	  cdResponse->setType(Designator::DesignatorType::ACTION);
+	  cdResponse->setValue("knowrob-live-id", m_mapDesignatorInstanceMapping[cdRequest->stringValue("designator-id")]);
+	  
+	  seResponse.cdDesignator = cdResponse;
+	  this->deployServiceEvent(seResponse);
+	}
+      }
+      
+      return evReturn;
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
