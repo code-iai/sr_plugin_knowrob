@@ -361,7 +361,7 @@ namespace semrec {
       
       std::string strQuery = "cram_create_desig(" +
 	std::string("'") + strType + "', " +
-	"'http://ias.cs.tum.edu/kb/cram_log.owl#" + strID + "')";
+	"'http://knowrob.org/kb/cram_log.owl#" + strID + "')";
       
       bool bSuccess;
       json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
