@@ -8,13 +8,11 @@ set(CMAKE_CXX_FLAGS "-std=c++0x")
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES sr_plugin_knowrob
-  CATKIN_DEPENDS json_prolog semrec
-)
+  CATKIN_DEPENDS json_prolog semrec)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include
-)
+  include)
 
 add_library(sr_plugin_knowrob
   src/PluginKnowRob.cpp)
