@@ -342,10 +342,12 @@ namespace semrec {
 	  
 	  std::string strActionInstance = ndSet->metaInformation()->stringValue("action-instance");
 	  
-	  std::string strQuery = "cram_set_success(" + strActionInstance + ", " + std::string(bTaskSuccess ? "true" : "false") + ")";
-	  
-	  bool bSuccess;
-	  json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  if(strActionInstance != "") { // Check if this node is new or not; if it is new, don't emit this query
+	    std::string strQuery = "cram_set_success(" + strActionInstance + ", " + std::string(bTaskSuccess ? "true" : "false") + ")";
+	    
+	    bool bSuccess;
+	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
+	  }
 	}
       }
     }
