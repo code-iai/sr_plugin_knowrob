@@ -250,6 +250,10 @@ namespace semrec {
 	    std::string strTimeFail = evEvent.cdDesignator->stringValue("time-failure");
 	    std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
 	    
+	    if(strTimeFail == "") {
+	      strTime = "_";
+	    }
+	    
 	    std::string strQuery = "cram_add_failure_to_action(" +
 	      std::string("'") + strActionInstance + "', " +
 	      "'" + m_expOwl->failureClassForCondition(strCondition) + "', " +
