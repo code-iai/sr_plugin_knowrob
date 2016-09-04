@@ -89,6 +89,7 @@ namespace semrec {
 	  this->setSubscribedToEvent("symbolic-add-designator", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-request", true);
 	  this->setSubscribedToEvent("symbolic-set-perception-result", true);
+	  this->setSubscribedToEvent("symbolic-set-node-success", true);
 	  
 	  this->setOffersService("resolve-designator-knowrob-live-id", true);
 	} else {
@@ -333,6 +334,15 @@ namespace semrec {
 	    bool bSuccess;
 	    json_prolog::PrologBindings pbBdgs = this->assertQuery(strQuery, bSuccess);
 	  }
+	}
+      } else if(evEvent.strEventName == "symbolic-set-node-success") {
+	if(evEvent.lstNodes.size() > 0) {
+	  Node* ndSet = evEvent.lstNodes.front();
+	  bool bTaskSuccess = ndSet->success();
+	  
+	  std::string strActionInstance = ndSet->metaInformation()->stringValue("action-instance");
+	  
+	  std::string strQuery = "cram_set_success(" + strActionInstance + ", " + std::string(bTaskSuccess ? "true" : "false") + ")";
 	}
       }
     }
