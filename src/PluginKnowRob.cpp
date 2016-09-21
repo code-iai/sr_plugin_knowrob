@@ -251,7 +251,7 @@ namespace semrec {
 	    std::string strActionInstance = ndNode->metaInformation()->stringValue("action-instance");
 	    
 	    if(strTimeFail == "") {
-	      strTime = "_";
+	      strTimeFail = "_";
 	    }
 	    
 	    std::string strQuery = "cram_add_failure_to_action(" +
